@@ -1,6 +1,6 @@
 # Mascotte 🟠
 
-Pallino è una piccola mascotte animata che vive nella tua chat. Non ha dipendenze: è un solo file JavaScript.
+Clawd (in pixel art) — o in alternativa Pallino — è una piccola mascotte animata che vive nella tua chat. Non ha dipendenze: è un solo file JavaScript.
 
 **Cosa fa da solo:** entra camminando, sbircia dal basso, balla, saluta, salta, fa piroette, si stiracchia, si addormenta (Zzz), dice frasi e ogni tanto se ne va. Con gli occhi segue il puntatore.
 
@@ -28,6 +28,6 @@ Apri `index.html` nel browser.
 </script>
 ```
 
-Opzioni: `name`, `size` (px, default 96), `minDelay` / `maxDelay` (ms tra un'azione e l'altra), `speed`, `colors` (`main`, `light`, `dark`, `accent`), `phrases` (per cambiare le frasi).
+Opzioni: `character` (`"pixel"` = Clawd, default, oppure `"pallino"`), `name`, `size` (px, default 96), `minDelay` / `maxDelay` (ms tra un'azione e l'altra), `speed`, `colors` (`main`, `light`, `dark`, `accent`), `phrases` (per cambiare le frasi).
 
 Metodi: `dance()`, `wave()`, `jump()`, `spin()`, `sleep()`, `love()`, `come()`, `leave()`, `say(testo)`, `setFace(umore)`, `start()`, `stop()`, `destroy()`.

@@ -43,7 +43,9 @@
 .mascotte{position:absolute;bottom:0;left:-200px;width:var(--m-size);height:var(--m-size);pointer-events:auto;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;outline:none}
 .mascotte.is-dragging{cursor:grabbing}
 .m-body{width:100%;height:100%;transform-origin:50% 100%}
-.m-svg{width:100%;height:100%;overflow:visible;display:block;transform-origin:50% 100%;animation:m-breathe 2.6s ease-in-out infinite}
+.m-svg{--al0:15deg;--al1:150deg;--ar0:-15deg;--ar1:-150deg;--w0:-115deg;--w1:-165deg;--sw:20deg;--dl:120deg;--dr:-120deg;
+  width:100%;height:100%;overflow:visible;display:block;transform-origin:50% 100%;animation:m-breathe 2.6s ease-in-out infinite}
+.m-svg.is-pixel{--al0:0deg;--al1:55deg;--ar0:0deg;--ar1:-55deg;--w0:-15deg;--w1:-65deg;--sw:10deg;--dl:50deg;--dr:-50deg;shape-rendering:crispEdges}
 .m-svg *{transform-box:fill-box}
 .m-arm-l{transform-origin:100% 12%}
 .m-arm-r{transform-origin:0% 12%}
@@ -56,7 +58,11 @@
 .m-svg[data-eyes=normal] .m-eyes-normal,.m-svg[data-eyes=happy] .m-eyes-happy,.m-svg[data-eyes=closed] .m-eyes-closed,
 .m-svg[data-eyes=x] .m-eyes-x,.m-svg[data-eyes=heart] .m-eyes-heart,.m-svg[data-mood=angry] .m-brows{display:inline}
 .m-svg[data-mood=surprised] .m-eye{transform:scale(1.12)}
+.m-svg.is-pixel .m-arm-l{transform-origin:100% 50%}
+.m-svg.is-pixel .m-arm-r{transform-origin:0% 50%}
+.m-svg.is-pixel .m-cheek{opacity:0}
 .is-blush .m-cheek,.m-svg[data-mood=love] .m-cheek{opacity:1}
+.is-blush .m-svg.is-pixel .m-cheek,.m-svg.is-pixel[data-mood=love] .m-cheek{opacity:.9}
 
 .is-walking .m-body{animation:m-bob .4s ease-in-out infinite}
 .is-walking .m-foot-l{animation:m-step .4s ease-in-out infinite}
@@ -85,8 +91,8 @@
 .is-dragging .m-body{animation:m-dangle .45s ease-in-out infinite alternate;transform-origin:50% 0}
 .is-dragging .m-foot-l{animation:m-step .25s ease-in-out infinite}
 .is-dragging .m-foot-r{animation:m-step .25s ease-in-out -.12s infinite}
-.is-dragging .m-arm-l{transform:rotate(120deg)}
-.is-dragging .m-arm-r{transform:rotate(-120deg)}
+.is-dragging .m-arm-l{transform:rotate(var(--dl))}
+.is-dragging .m-arm-r{transform:rotate(var(--dr))}
 
 .m-bubble{position:absolute;bottom:calc(100% + 8px);left:50%;width:max-content;max-width:210px;
   transform:translate(calc(-50% + var(--shift,0px)),6px) scale(.85);transform-origin:50% 100%;opacity:0;
@@ -101,11 +107,11 @@
 @keyframes m-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 @keyframes m-bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-7px) rotate(4deg)}}
 @keyframes m-step{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes m-swing{from{transform:rotate(-20deg)}to{transform:rotate(20deg)}}
+@keyframes m-swing{from{transform:rotate(calc(var(--sw) * -1))}to{transform:rotate(var(--sw))}}
 @keyframes m-dance{0%,100%{transform:translate(0,0) rotate(0)}25%{transform:translate(-10px,-12px) rotate(-12deg)}50%{transform:translate(0,0) scale(1.08,.92)}75%{transform:translate(10px,-12px) rotate(12deg)}}
-@keyframes m-arm-l-up{from{transform:rotate(15deg)}to{transform:rotate(150deg)}}
-@keyframes m-arm-r-up{from{transform:rotate(-15deg)}to{transform:rotate(-150deg)}}
-@keyframes m-wave{from{transform:rotate(-115deg)}to{transform:rotate(-165deg)}}
+@keyframes m-arm-l-up{from{transform:rotate(var(--al0))}to{transform:rotate(var(--al1))}}
+@keyframes m-arm-r-up{from{transform:rotate(var(--ar0))}to{transform:rotate(var(--ar1))}}
+@keyframes m-wave{from{transform:rotate(var(--w0))}to{transform:rotate(var(--w1))}}
 @keyframes m-wiggle{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
 @keyframes m-tilt{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
 @keyframes m-jump{0%{transform:translateY(0) scale(1,1)}15%{transform:translateY(0) scale(1.2,.8)}45%{transform:translateY(-75px) scale(.9,1.12)}60%{transform:translateY(-75px) scale(1,1)}88%{transform:translateY(0) scale(1.18,.84)}100%{transform:translateY(0) scale(1,1)}}
@@ -176,6 +182,42 @@
 </svg>`;
   }
 
+
+  // Personaggio in pixel art: griglia 12x8, 1 pixel = 10 unità
+  function rects(list, extra = '') {
+    return list.map(([x, y, w, h]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}"${extra}/>`).join('');
+  }
+  function pixelEyes(fn) { return fn(30) + fn(80); } // x sinistro dei due occhi
+  function pixelMarkup(c) {
+    const ink = '#141414';
+    const heart = (x) => rects([[x - 2, 41, 3, 3], [x + 4, 41, 3, 3], [x - 2, 44, 9, 3], [x + 1, 47, 3, 3]]);
+    return `
+<svg class="m-svg is-pixel" viewBox="0 0 120 120" aria-hidden="true">
+  <rect x="22" y="112" width="76" height="4" fill="rgba(0,0,0,.18)"/>
+  <g class="m-foot m-foot-l" fill="${c.main}">${rects([[20, 88, 10, 22], [70, 88, 10, 22]])}</g>
+  <g class="m-foot m-foot-r" fill="${c.main}">${rects([[40, 88, 10, 22], [90, 88, 10, 22]])}</g>
+  <g class="m-arm m-arm-l"><rect x="0" y="50" width="22" height="20" fill="${c.main}"/></g>
+  <g class="m-arm m-arm-r"><rect x="98" y="50" width="22" height="20" fill="${c.main}"/></g>
+  <rect x="20" y="30" width="80" height="60" fill="${c.main}"/>
+  <g class="m-cheek" fill="#ff8fa8">${rects([[22, 58, 8, 5], [90, 58, 8, 5]])}</g>
+  <g class="m-eyes m-eyes-normal">
+    <g class="m-eye"><g class="m-pupil"><rect x="30" y="40" width="10" height="10" fill="${ink}"/></g></g>
+    <g class="m-eye"><g class="m-pupil"><rect x="80" y="40" width="10" height="10" fill="${ink}"/></g></g>
+  </g>
+  <g class="m-eyes m-eyes-happy" fill="${ink}">${pixelEyes((x) => rects([[x - 3, 45, 4, 4], [x + 1, 41, 8, 4], [x + 9, 45, 4, 4]]))}</g>
+  <g class="m-eyes m-eyes-closed" fill="${ink}">${pixelEyes((x) => rects([[x - 2, 45, 14, 4]]))}</g>
+  <g class="m-eyes m-eyes-x" fill="${ink}">${pixelEyes((x) => rects([[x - 2, 38, 4, 4], [x + 8, 38, 4, 4], [x + 3, 43, 4, 4], [x - 2, 48, 4, 4], [x + 8, 48, 4, 4]]))}</g>
+  <g class="m-eyes m-eyes-heart" fill="#ff3d6e">${pixelEyes(heart)}</g>
+  <g class="m-brows" fill="${ink}">${rects([[28, 32, 6, 4], [34, 35, 6, 4], [86, 32, 6, 4], [80, 35, 6, 4]])}</g>
+  <path class="m-mouth" fill="${ink}"/>
+</svg>`;
+  }
+  const PIXEL_MOUTHS = {
+    smile: { d: '', fill: 'none' }, frown: { d: '', fill: 'none' }, wavy: { d: '', fill: 'none' }, small: { d: '', fill: 'none' },
+    laugh: { d: 'M50 62h20v4h-4v4h-12v-4h-4z', fill: '#141414' },
+    o: { d: 'M55 62h10v10h-10z', fill: '#141414' },
+  };
+
   const FACES = {
     neutral: ['normal', 'smile'], happy: ['happy', 'laugh'], surprised: ['normal', 'o'],
     dizzy: ['x', 'wavy'], sleep: ['closed', 'small'], love: ['heart', 'laugh'],
@@ -191,7 +233,8 @@
   };
 
   const COLORS = {
-    main: '#ff9f43', light: '#ffd98a', dark: '#e07a1f', accent: '#ff5e7e',
+    pallino: { main: '#ff9f43', light: '#ffd98a', dark: '#e07a1f', accent: '#ff5e7e' },
+    pixel: { main: '#d97757' },
   };
 
   // ---------- Classe ----------
@@ -199,7 +242,8 @@
     constructor(options = {}) {
       this.o = Object.assign({
         container: document.body,
-        name: 'Pallino',
+        name: 'Clawd',
+        character: 'pixel', // 'pixel' oppure 'pallino'
         size: 96,
         minDelay: 5000,   // pausa minima tra un'azione e l'altra (ms)
         maxDelay: 12000,  // pausa massima
@@ -209,7 +253,8 @@
         phrases: {},
       }, options);
       this.P = Object.assign({}, PHRASES, this.o.phrases);
-      this.colors = Object.assign({}, COLORS, this.o.colors);
+      this.pixel = this.o.character !== 'pallino';
+      this.colors = Object.assign({}, COLORS[this.pixel ? 'pixel' : 'pallino'], this.o.colors);
       this.token = 0;
       this.busy = false;
       this.state = 'hidden';
@@ -237,7 +282,7 @@
       this.el.setAttribute('role', 'button');
       this.el.setAttribute('tabindex', '0');
       this.el.setAttribute('aria-label', `${this.o.name}, la mascotte. Toccala!`);
-      this.el.innerHTML = `<div class="m-bubble" role="status" aria-live="polite"></div><div class="m-body">${svgMarkup(this.colors)}</div>`;
+      this.el.innerHTML = `<div class="m-bubble" role="status" aria-live="polite"></div><div class="m-body">${this.pixel ? pixelMarkup(this.colors) : svgMarkup(this.colors)}</div>`;
       this.layer.appendChild(this.el);
       this.host.appendChild(this.layer);
 
@@ -323,13 +368,14 @@
       const [eyes, m] = FACES[mood] || FACES.neutral;
       this.svg.dataset.eyes = eyes;
       this.svg.dataset.mood = mood;
-      const mo = MOUTHS[m];
+      const mo = (this.pixel ? PIXEL_MOUTHS : MOUTHS)[m];
       this.mouth.setAttribute('d', mo.d);
       this.mouth.setAttribute('fill', mo.fill);
     }
 
     lookAt(dx, dy) {
-      for (const p of this.pupils) p.style.transform = `translate(${dx * 3}px, ${dy * 3.5}px)`;
+      const k = this.pixel ? 2.5 : 3;
+      for (const p of this.pupils) p.style.transform = `translate(${dx * k}px, ${dy * k}px)`;
     }
 
     say(text, ms = 2400) {
@@ -757,7 +803,7 @@
     _dragTo(cx, cy) {
       const S = this.o.size, lr = this.layer.getBoundingClientRect();
       const x = Math.max(-S / 3, Math.min(lr.width - (2 * S) / 3, cx - lr.left - S / 2));
-      const b = Math.max(0, Math.min(lr.height - S - 44, lr.bottom - cy - S * 0.2));
+      const b = Math.max(0, Math.min(lr.height - S - 64, lr.bottom - cy - S * 0.2));
       this.el.style.transition = 'none';
       this.el.style.left = x + 'px';
       this.el.style.bottom = b + 'px';
