@@ -1,0 +1,1 @@
+{ "name": "clawd-mascotte", "version": "0.1.0", "description": "Clawd, una mascotte in pixel art che passa sopra la chat, balla e reagisce quando la tocchi", "types": "./types/index.d.ts" }

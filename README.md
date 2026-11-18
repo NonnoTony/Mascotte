@@ -31,3 +31,7 @@ Apri `index.html` nel browser.
 Opzioni: `character` (`"pixel"` = Clawd, default, oppure `"pallino"`), `name`, `size` (px, default 96), `minDelay` / `maxDelay` (ms tra un'azione e l'altra), `speed`, `colors` (`main`, `light`, `dark`, `accent`), `phrases` (per cambiare le frasi).
 
 Metodi: `dance()`, `wave()`, `jump()`, `spin()`, `sleep()`, `love()`, `come()`, `leave()`, `say(testo)`, `setFace(umore)`, `start()`, `stop()`, `destroy()`.
+
+## Clawd dentro l'app Claude
+
+La cartella `claude-mod/clawd-mascotte` è una mod di Claude Code: mostra Clawd in una striscia sopra la casella di testo dell'app. Passa ogni tanto, balla, dorme, sbircia, reagisce ai pulsanti «👆 Tocca», «❤️ Coccole», «Vai via» e alle parole che scrivi (balla, salta, gira, dormi, ciao, vai via…). Quando Claude finisce una risposta a volte festeggia.
