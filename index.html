@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chat con Pallino</title>
+<style>
+  :root{
+    --bg:#f3f1ec; --panel:#ffffff; --ink:#24232b; --muted:#77737f; --line:#e6e2da;
+    --me:#ff9f43; --me-ink:#fff; --them:#ffffff; --chip:#fff4e6; --chip-ink:#b05a12;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#17161c; --panel:#211f27; --ink:#f1eff5; --muted:#a29fab; --line:#2f2c36;
+      --me:#e8822a; --them:#2a2731; --chip:#2e2620; --chip-ink:#ffb978; }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    display:flex;justify-content:center}
+  .app{display:flex;flex-direction:column;width:100%;max-width:520px;height:100%;background:var(--panel);
+    border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .avatar{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#ffd98a,#ff9f43);
+    display:grid;place-items:center;font-size:20px}
+  header h1{font-size:16px;margin:0}
+  header p{font-size:13px;margin:0;color:var(--muted)}
+  .stage{position:relative;flex:1;min-height:0;background:var(--bg)}
+  .messages{position:absolute;inset:0;overflow-y:auto;padding:16px 16px 110px;display:flex;flex-direction:column;gap:8px}
+  .msg{max-width:78%;padding:9px 13px;border-radius:18px;word-wrap:break-word;animation:pop .2s ease-out}
+  .msg.them{align-self:flex-start;background:var(--them);border-bottom-left-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .msg.me{align-self:flex-end;background:var(--me);color:var(--me-ink);border-bottom-right-radius:6px}
+  @keyframes pop{from{transform:scale(.9);opacity:0}}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 16px 0;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;border:0;background:var(--chip);color:var(--chip-ink);font:600 14px system-ui,sans-serif;
+    padding:7px 12px;border-radius:999px;cursor:pointer}
+  form{display:flex;gap:8px;padding:10px 16px calc(12px + env(safe-area-inset-bottom))}
+  input{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;
+    padding:11px 16px;font:inherit;outline:none}
+  input:focus{border-color:var(--me)}
+  button.send{border:0;background:var(--me);color:#fff;border-radius:999px;padding:0 18px;font:600 15px system-ui,sans-serif;cursor:pointer}
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="avatar">🟠</div>
+      <div>
+        <h1>Chat con Pallino</h1>
+        <p>Toccalo, tienilo premuto o trascinalo!</p>
+      </div>
+    </header>
+
+    <div class="stage" id="stage">
+      <div class="messages" id="messages"></div>
+    </div>
+
+    <div class="chips" id="chips">
+      <button class="chip" data-say="Balla! 💃">💃 Balla</button>
+      <button class="chip" data-say="Ciao Pallino!">👋 Ciao</button>
+      <button class="chip" data-say="Salta!">🦘 Salta</button>
+      <button class="chip" data-say="Fai una piroetta, gira!">🌀 Gira</button>
+      <button class="chip" data-say="Buonanotte, dormi un po'">😴 Dormi</button>
+      <button class="chip" data-say="Ti voglio bene ❤️">❤️ Coccole</button>
+      <button class="chip" data-say="Vai via!">🚪 Vai via</button>
+    </div>
+    <form id="form" autocomplete="off">
+      <input id="input" placeholder="Scrivi un messaggio…" aria-label="Messaggio">
+      <button class="send" type="submit">Invia</button>
+    </form>
+  </div>
+
+<script src="mascotte.js"></script>
+<script>
+  const messages = document.getElementById('messages');
+  const input = document.getElementById('input');
+
+  const mascotte = new Mascotte({ container: '#stage', name: 'Pallino' });
+
+  function addMessage(text, who) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  const replies = [
+    ['balla', 'Musica, maestro! 🎶'],
+    ['vai via', 'Va bene, torna quando vuole lui 😉'],
+    ['ciao', 'Ciao! Pallino ti ha visto 😄'],
+    ['salta', 'Hop hop! 🦘'],
+    ['gira', 'Occhio che gli gira la testa!'],
+    ['dormi', 'Shhh… 😴'],
+    ['bene', 'Si è emozionato 🥰'],
+  ];
+  function botReply(text) {
+    const t = text.toLowerCase();
+    const hit = replies.find(([k]) => t.includes(k));
+    const answer = hit ? hit[1] : ['Interessante! 🤔', 'Dimmi di più!', 'Ah sì?', 'Capito 👍'][Math.floor(Math.random() * 4)];
+    setTimeout(() => addMessage(answer, 'them'), 600);
+  }
+
+  function send(text) {
+    text = text.trim();
+    if (!text) return;
+    addMessage(text, 'me');
+    mascotte.onMessage(text);
+    botReply(text);
+  }
+
+  document.getElementById('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    send(input.value);
+    input.value = '';
+  });
+  document.getElementById('chips').addEventListener('click', (e) => {
+    const b = e.target.closest('.chip');
+    if (b) send(b.dataset.say);
+  });
+
+  addMessage('Ciao! In questa chat vive Pallino 🟠', 'them');
+  addMessage('Ogni tanto passa, sbircia, balla o si addormenta. Toccalo per farlo reagire, tienilo premuto per le coccole o trascinalo in giro!', 'them');
+</script>
+</body>
+</html>
